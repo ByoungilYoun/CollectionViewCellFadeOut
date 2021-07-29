@@ -26,7 +26,7 @@ class ViewController: UIViewController {
   
   let collectionView : UICollectionView = {
     let layout = UICollectionViewFlowLayout()
-    layout.scrollDirection = .vertical
+    layout.scrollDirection = .horizontal
     return UICollectionView(frame: .zero, collectionViewLayout: layout)
   }()
   
@@ -40,11 +40,11 @@ class ViewController: UIViewController {
   //MARK: - Functions
   private func configureUI() {
     view.backgroundColor = .lightGray
-    collectionView.backgroundColor = .systemBlue
+    collectionView.backgroundColor = .clear
     collectionView.dataSource = self
     collectionView.delegate = self
     collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
-    
+    collectionView.isPagingEnabled = true
     
     [myImageView1, myImageView2, collectionView].forEach {
       view.addSubview($0)
@@ -67,6 +67,25 @@ class ViewController: UIViewController {
     myImageView1.alpha = 1.0
     myImageView2.alpha = 0.0
   }
+  
+  func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    let x = scrollView.contentOffset.x
+    let index = getCurrentIndex()
+    let fadeInAlpha = (x - (collectionViewWidth * CGFloat(index))) / collectionViewWidth
+    let fadeOutAlpha = 1 - fadeInAlpha
+    
+    guard index < 1 else {return}
+    myImageView1.alpha = fadeOutAlpha
+    myImageView2.alpha = fadeInAlpha
+  }
+  
+  func getCurrentIndex() -> Int {
+    return Int(collectionView.contentOffset.x / collectionView.frame.width)
+  }
+  
+  var collectionViewWidth : CGFloat {
+    return collectionView.frame.width
+  }
 }
 
   //MARK: - UICollectionvViewDataSource
@@ -77,7 +96,7 @@ extension ViewController : UICollectionViewDataSource  {
   
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
-    cell.backgroundColor = .yellow
+    cell.backgroundColor = .clear
     return cell
   }
 }
@@ -91,5 +110,9 @@ extension ViewController : UICollectionViewDelegate {
 extension ViewController : UICollectionViewDelegateFlowLayout {
   func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
     return collectionView.frame.size
+  }
+  
+  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+    return 0
   }
 }
