@@ -23,6 +23,13 @@ class ViewController: UIViewController {
     v.image = UIImage(named: "JoopdaCollaboration")
     return v
   }()
+  
+  let collectionView : UICollectionView = {
+    let layout = UICollectionViewFlowLayout()
+    layout.scrollDirection = .vertical
+    return UICollectionView(frame: .zero, collectionViewLayout: layout)
+  }()
+  
   //MARK: - Lifecycle
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -33,8 +40,13 @@ class ViewController: UIViewController {
   //MARK: - Functions
   private func configureUI() {
     view.backgroundColor = .lightGray
+    collectionView.backgroundColor = .systemBlue
+    collectionView.dataSource = self
+    collectionView.delegate = self
+    collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
     
-    [myImageView1, myImageView2].forEach {
+    
+    [myImageView1, myImageView2, collectionView].forEach {
       view.addSubview($0)
     }
     
@@ -45,12 +57,39 @@ class ViewController: UIViewController {
     myImageView2.snp.makeConstraints {
       $0.top.leading.trailing.bottom.equalToSuperview()
     }
+    
+    collectionView.snp.makeConstraints {
+      $0.top.leading.trailing.bottom.equalToSuperview()
+    }
   }
   
   private func setupView() {
     myImageView1.alpha = 1.0
     myImageView2.alpha = 0.0
-    
   }
 }
 
+  //MARK: - UICollectionvViewDataSource
+extension ViewController : UICollectionViewDataSource  {
+  func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    return 2
+  }
+  
+  func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
+    cell.backgroundColor = .yellow
+    return cell
+  }
+}
+
+  //MARK: - UIColletionViewDelegate
+extension ViewController : UICollectionViewDelegate {
+  
+}
+
+  //MARK: - UICollectionViewDelegateFlowLayout
+extension ViewController : UICollectionViewDelegateFlowLayout {
+  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    return collectionView.frame.size
+  }
+}
